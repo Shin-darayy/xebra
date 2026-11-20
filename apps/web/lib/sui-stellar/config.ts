@@ -4,7 +4,8 @@
  *
  *  - `SUI_STELLAR_ENABLED=true`  the page and its routes answer; anything else and they 404.
  *  - `SUI_STELLAR_MAX_USDC`      optional per-transfer cap enforced when the burn is built.
- *                                 Unset (the default) means no cap.
+ *                                 Unset (the default) means no cap. A value that cannot be read
+ *                                 refuses every transfer; it does not lift the limit.
  *  - `SUI_STELLAR_RELAYER_SECRET` the funded Stellar account that pays the fee to complete a burn.
  *                                 Without it the page still builds burns, but nothing completes them.
  *  - `SUI_RPC_URL`               Sui fullnode (gRPC-web). Defaults to Mysten's public mainnet node.
@@ -20,6 +21,7 @@
  * the whole Sui page.
  */
 import { EVM_CHAINS, type EvmChain, isEvmChainId } from "@xebra/sdk/core";
+import { parseCap } from "../server/parse-cap";
 
 /** Sui's CCTP domain. Here rather than in `cctp.ts` so that reading it does not load the Stellar SDK. */
 export const SUI_CCTP_DOMAIN = 8;
@@ -31,13 +33,12 @@ export function suiStellarEnabled(): boolean {
   return process.env.SUI_STELLAR_ENABLED === "true";
 }
 
-/** The per-transfer cap in USDC base units, or null for no cap (the default). */
+/**
+ * The per-transfer cap in USDC base units, or null for no cap (the default). A value that is set
+ * and cannot be read is a cap of zero: see `parseCap`.
+ */
 export function maxUsdcBase(): bigint | null {
-  const raw = process.env.SUI_STELLAR_MAX_USDC?.trim();
-  if (!raw) return null;
-  const usdc = Number(raw);
-  if (!Number.isFinite(usdc) || usdc <= 0) return null;
-  return BigInt(Math.round(usdc * 1_000_000));
+  return parseCap("SUI_STELLAR_MAX_USDC", process.env.SUI_STELLAR_MAX_USDC);
 }
 
 export function relayerSecret(): string | null {

@@ -73,7 +73,7 @@ Server environment (Vercel, read at request time, not build inputs):
 |---|---|
 | `SUI_STELLAR_ENABLED` | `true` to serve `/sui` and its routes. Anything else: 404. |
 | `SUI_STELLAR_RELAYER_SECRET` | Funded mainnet Stellar secret that pays the fee (about 0.02 XLM per completion). Unset: users can burn but nothing completes it. Use a dedicated account holding a small float. |
-| `SUI_STELLAR_MAX_USDC` | Optional per-transfer cap in USDC. Unset means no cap (it was 10 until 2026-11-08). |
+| `SUI_STELLAR_MAX_USDC` | Optional per-transfer cap in USDC, written as plain digits with at most six decimals (`250`, `0.5`). Unset means no cap (it was 10 until 2026-11-08). A value that cannot be read as a positive amount (`1,000`, `$500`, `0`) refuses every transfer and is logged once; it used to mean no cap. |
 | `SUI_RPC_URL` | Sui fullnode, default Mysten's public mainnet node. |
 | `SUI_SENDS_TO_EVM` | EVM chains Sui also sends to: a comma list of chain ids (e.g. `monad,base`), `all` for every chain in the EVM table (Arc included), or `none`. Unset means `monad`. Unknown names are ignored. Only while `SUI_STELLAR_ENABLED=true`. |
 | `SUI_SENDS_TO_SOLANA` | `true` to let Sui send to Solana as well (Circle's Forwarding Service, into the recipient's USDC account). Off unless set. Only while `SUI_STELLAR_ENABLED=true`. |
