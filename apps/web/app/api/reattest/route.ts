@@ -1,5 +1,6 @@
 import { IrisUnavailable } from "@xebra/cctp-client";
 import { irisBaseUrl, irisFetch } from "../../../lib/server/iris";
+import { logFailure } from "../../../lib/server/log";
 import { createTtlCache } from "../../../lib/server/ttl-cache";
 
 /**
@@ -63,6 +64,7 @@ export async function POST(request: Request): Promise<Response> {
     if (err instanceof Refused) {
       return Response.json({ status: "failed", reason: err.message }, { status: err.http });
     }
+    logFailure("/api/reattest", err, { nonce }, request);
     if (err instanceof IrisUnavailable) {
       return Response.json(
         { status: "failed", reason: "Circle lookups are paused for a moment; try again shortly" },
